@@ -120,5 +120,6 @@ ENV/
 # IntelliJ project files
 .idea
 *.iml
+*.sqlite3
 out
 gen
