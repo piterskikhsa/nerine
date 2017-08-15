@@ -1,0 +1,21 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-grow: 0;
+    width: 100%;
+    color: #fff;
+    background-color: #1a1f2b;
+    box-shadow: rgba(0,0,0,.6) 2px 2px 5px;
+}
+
+main {
+    order: 0;
+    flex: 7;
+}

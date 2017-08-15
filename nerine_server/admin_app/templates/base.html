@@ -11,14 +11,11 @@
         <title>Nerine | Панель администратора</title>
     </head>
     <body>
-        <div class="wrapper">
-            <header></header>
-            <main>
-                {% block content %}
-                {% endblock %}
-            </main>               
-            <footer></footer>
-        </div>
+        <header></header>
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>               
         <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
         <script src="{% static 'js/common.js' %}"></script>
     </body>
