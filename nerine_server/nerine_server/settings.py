@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     #nerine apps
     'base',
     'root_api',
+    'admin_app'
 ]
 
 MIDDLEWARE = [
@@ -59,7 +60,7 @@ ROOT_URLCONF = 'nerine_server.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['admin_app.templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
