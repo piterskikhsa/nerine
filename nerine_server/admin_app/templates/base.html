@@ -22,27 +22,23 @@
             </div>
         </header>
         <main>
-            <div class="management-panel">
-                <ul>
-                    <li class="management-panel_item">
-                        <a href="#">Добавить нового администратора</a>
-                    </li>
-                    <li class="management-panel_item">
-                        <a href="#">Учётные записи польователей</a>
-                    </li>
-                </ul> 
-            </div>
-            <ul class="nav-menu">
-                <li class="nav-menu_item">
-                    <a href="{% url 'sites' %}">СПИСОК САЙТОВ</a>
-                </li>
-                <li class="nav-menu_item">
-                    <a href="{% url 'persons' %}">ЛИЧНОСТИ</a>
-                </li>
-                <li class="nav-menu_item">
-                    <a href="{% url 'keywords' %}">КЛЮЧЕВЫЕ СЛОВА</a>
-                </li>
-            </ul>
+           <ul class="nav-menu">
+               <li class="nav-menu_item {% if page == 'admins' %} active {% endif %}">
+                   <a href="{% url 'admins' %}">Администраторы</a>
+               </li>
+               <li class="nav-menu_item {% if page == 'users' %} active {% endif %}">
+                   <a href="{% url 'users' %}">Пользователи</a>
+               </li>
+               <li class="nav-menu_item {% if page == 'sites' %} active {% endif %}">
+                   <a href="{% url 'sites' %}">Сайты</a>
+               </li>
+               <li class="nav-menu_item {% if page == 'persons' %} active {% endif %}">
+                   <a href="{% url 'persons' %}">Личности</a>
+               </li>
+               <li class="nav-menu_item {% if page == 'keywords' %} active {% endif %}">
+                   <a href="{% url 'keywords' %}">Ключевые слова</a>
+               </li>
+           </ul>
             <div class="content">
                 {% block content %}
                 {% endblock %}

@@ -1,6 +1,16 @@
 from django.shortcuts import render
 
 
+def show_tepmlate_admins(request):
+    page = 'admins'
+    context = {'page': page}
+    return render(request, 'admins.html', context)
+
+def show_tepmlate_users(request):
+    page = 'users'
+    context = {'page': page}
+    return render(request, 'users.html', context)
+
 def show_tepmlate_sites(request):
     page = 'sites'
     fake_data = ['www.mail.ru', 'www.yandex.ru', 'www.rambler.ru', 'www.google.com', 'www.yahoo.com']
