@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'css/main.css' %}">
+        <link rel="stylesheet" href="#">
+        <link rel="icon" href="#" type="image/x-icon">
+        <title>Nerine | Панель администратора</title>
+    </head>
+    <body>
+        <header>
+            <h1 class="header_title">NERINE | Панель администратора</h1>
+            <div class="header__logout-panel">
+                <p>
+                    Вы зашли как 
+                    <span class="header__logout-panel_admin-name">administraitor</span>
+                </p>
+                <a class="header__logout-panel_logout-link" href="#">Выйти</a>
+            </div>
+        </header>
+        <main>
+           <ul class="nav-menu">
+               <li class="nav-menu_item {% if page == 'admins' %} active {% endif %}">
+                   <a href="{% url 'admins' %}">Администраторы</a>
+               </li>
+               <li class="nav-menu_item {% if page == 'users' %} active {% endif %}">
+                   <a href="{% url 'users' %}">Пользователи</a>
+               </li>
+               <li class="nav-menu_item {% if page == 'sites' %} active {% endif %}">
+                   <a href="{% url 'sites' %}">Сайты</a>
+               </li>
+               <li class="nav-menu_item {% if page == 'persons' %} active {% endif %}">
+                   <a href="{% url 'persons' %}">Личности</a>
+               </li>
+               <li class="nav-menu_item {% if page == 'keywords' %} active {% endif %}">
+                   <a href="{% url 'keywords' %}">Ключевые слова</a>
+               </li>
+           </ul>
+            <div class="content">
+                {% block content %}
+                {% endblock %}
+                <div class="content_buttons-block">
+                    <button>Добавить</button>
+                    <button>Редактировать</button>
+                    <button>Удалить</button>
+                </div>
+            </div>
+        </main>               
+        <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+        <script src="{% static 'js/common.js' %}"></script>
+    </body>
+</html>
