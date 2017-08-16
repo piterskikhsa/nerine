@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from base.models import PersonPageRank, Person, Page
+from root_api.models import PersonPageRank, Person, Page
 
 
 class PageRankSerializer(serializers.ModelSerializer):
