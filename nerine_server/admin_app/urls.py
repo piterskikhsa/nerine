@@ -6,6 +6,6 @@ from .views import (show_tepmlate_sites,
 
 urlpatterns = [
     url(r'^sites/', show_tepmlate_sites, name='sites'),
-    url(r'^sites/', show_tepmlate_persons, name='sites'),
-    url(r'^sites/', show_tepmlate_keywords, name='sites'),
+    url(r'^persons/', show_tepmlate_persons, name='persons'),
+    url(r'^keywords/', show_tepmlate_keywords, name='keywords'),
 ]

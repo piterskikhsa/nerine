@@ -34,17 +34,24 @@
             </div>
             <ul class="nav-menu">
                 <li class="nav-menu_item">
-                    <a href="#">СПИСОК САЙТОВ</a>
+                    <a href="{% url 'sites' %}">СПИСОК САЙТОВ</a>
                 </li>
                 <li class="nav-menu_item">
-                    <a href="#">ЛИЧНОСТИ</a>
+                    <a href="{% url 'persons' %}">ЛИЧНОСТИ</a>
                 </li>
                 <li class="nav-menu_item">
-                    <a href="#">КЛЮЧЕВЫЕ СЛОВА</a>
+                    <a href="{% url 'keywords' %}">КЛЮЧЕВЫЕ СЛОВА</a>
                 </li>
             </ul>
-            {% block content %}
-            {% endblock %}
+            <div class="content">
+                {% block content %}
+                {% endblock %}
+                <div class="content_buttons-block">
+                    <button>Добавить</button>
+                    <button>Редактировать</button>
+                    <button>Удалить</button>
+                </div>
+            </div>
         </main>               
         <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
         <script src="{% static 'js/common.js' %}"></script>

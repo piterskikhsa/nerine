@@ -62,6 +62,7 @@ main {
 .nav-menu {
     display: flex;
     justify-content: center;
+    background: #111;
 }
 
 .nav-menu_item {
@@ -75,9 +76,30 @@ main {
 }
 
 .nav-menu_item a:hover {
-    text-decoration: underline;
+    color: azure;
 }
 
+.data-table {
+    margin: 20px auto;
+    display: contents;
+    border-collapse: collapse;
+}
+
+.data-table_item {
+    padding: 5px 50px;
+    border: 1px solid #111;
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+}
+
+.content_buttons-block {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+}
 
 
 

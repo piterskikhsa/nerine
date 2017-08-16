@@ -3,14 +3,23 @@ from django.shortcuts import render
 
 def show_tepmlate_sites(request):
     page = 'sites'
-    return render(request, 'sites.html', {'page': page})
+    fake_data = ['www.mail.ru', 'www.yandex.ru', 'www.rambler.ru', 'www.google.com', 'www.yahoo.com']
+    context = {'page': page, 'data': fake_data}
+    return render(request, 'sites.html', context)
 
 
 def show_tepmlate_persons(request):
     page = 'persons'
-    return render(request, 'persons.html', {'page': page})
+    fake_data = ['Путин', 'Медведев', 'Навальный', 'Трамп']
+    context = {'page': page, 'data': fake_data}
+    return render(request, 'persons.html', context)
 
 
 def show_tepmlate_keywords(request):
     page = 'keywords'
-    return render(request, 'keywords.html', {'page': page})
+    fake_data = ['Путин', 'Путина', 'Путину',
+                 'Медведев', 'Медведева', 'Медведеву',
+                 'Навальный', 'Навальнова', 'Навальному',
+                 'Трамп', 'Трампа', 'Трампу']
+    context = {'page': page, 'data': fake_data}
+    return render(request, 'keywords.html', context)
