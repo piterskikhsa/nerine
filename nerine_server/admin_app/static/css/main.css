@@ -13,6 +13,10 @@ header {
     box-shadow: rgba(0,0,0,.6) 2px 2px 5px;
 }
 
+.header_title {
+    padding: 0 30px;
+}
+
 .header__logout-panel {
     display: flex;
     flex-direction: column;
@@ -35,3 +39,67 @@ header {
 main {
     
 }
+
+.management-panel {
+    display: flex;
+    flex-direction: column;
+    margin: 30px 0 30px 60px;
+}
+
+.management-panel_item {
+    padding: 5px;
+}
+
+.management-panel_item a {
+    color: cornflowerblue;
+    text-decoration: none;
+}
+
+.management-panel_item a:hover {
+    text-decoration: underline;
+}
+
+.nav-menu {
+    display: flex;
+    justify-content: center;
+}
+
+.nav-menu_item {
+    padding: 10px 30px;
+    list-style-type: none;
+}
+
+.nav-menu_item a {
+    color: cornflowerblue;
+    text-decoration: none;
+}
+
+.nav-menu_item a:hover {
+    text-decoration: underline;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

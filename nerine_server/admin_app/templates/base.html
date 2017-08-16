@@ -12,7 +12,7 @@
     </head>
     <body>
         <header>
-            <h1>NERINE | Панель администратора</h1>
+            <h1 class="header_title">NERINE | Панель администратора</h1>
             <div class="header__logout-panel">
                 <p>
                     Вы зашли как 
@@ -22,6 +22,27 @@
             </div>
         </header>
         <main>
+            <div class="management-panel">
+                <ul>
+                    <li class="management-panel_item">
+                        <a href="#">Добавить нового администратора</a>
+                    </li>
+                    <li class="management-panel_item">
+                        <a href="#">Учётные записи польователей</a>
+                    </li>
+                </ul> 
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-menu_item">
+                    <a href="#">СПИСОК САЙТОВ</a>
+                </li>
+                <li class="nav-menu_item">
+                    <a href="#">ЛИЧНОСТИ</a>
+                </li>
+                <li class="nav-menu_item">
+                    <a href="#">КЛЮЧЕВЫЕ СЛОВА</a>
+                </li>
+            </ul>
             {% block content %}
             {% endblock %}
         </main>               
