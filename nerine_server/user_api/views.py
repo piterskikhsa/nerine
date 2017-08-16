@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import PersonPageRank, Pages
+from base.models import PersonPageRank, Page
 from .serializers import PageRankSerializer
 
 

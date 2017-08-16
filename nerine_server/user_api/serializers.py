@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import PersonPageRank, Persons, Pages
+from base.models import PersonPageRank, Person, Page
 
 
 class PageRankSerializer(serializers.ModelSerializer):
@@ -10,13 +10,13 @@ class PageRankSerializer(serializers.ModelSerializer):
 
 class PersonSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Persons
+        model = Person
         fields = ('__all__')
 
 
 class PagesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Pages
+        model = Page
         fields = ('__all__',)
 
 
