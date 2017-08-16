@@ -11,7 +11,16 @@
         <title>Nerine | Панель администратора</title>
     </head>
     <body>
-        <header></header>
+        <header>
+            <h1>NERINE | Панель администратора</h1>
+            <div class="header__logout-panel">
+                <p>
+                    Вы зашли как 
+                    <span class="header__logout-panel_admin-name">administraitor</span>
+                </p>
+                <a class="header__logout-panel_logout-link" href="#">Выйти</a>
+            </div>
+        </header>
         <main>
             {% block content %}
             {% endblock %}

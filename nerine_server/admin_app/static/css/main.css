@@ -3,19 +3,35 @@ html, body {
     padding: 0;
 }
 
-
 header {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
-    flex-grow: 0;
     width: 100%;
     color: #fff;
-    background-color: #1a1f2b;
+    background-color: #000;
     box-shadow: rgba(0,0,0,.6) 2px 2px 5px;
 }
 
+.header__logout-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: baseline;
+}
+
+.header__logout-panel_admin-name {
+    color: cornflowerblue;
+}
+
+.header__logout-panel_logout-link {
+    color: cornflowerblue;
+}
+
+.header__logout-panel_logout-link:hover {
+    color: azure;
+}
+
 main {
-    order: 0;
-    flex: 7;
+    
 }
