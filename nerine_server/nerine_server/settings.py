@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     #nerine apps
     'base',
     'root_api',
-    'admin_app'
+    'admin_app',
+    'user_api'
 ]
 
 MIDDLEWARE = [
