@@ -1,4 +1,12 @@
 from django.shortcuts import render
+from .db_conn import DBConnection
+
+
+host = 'localhost'
+user = 'newuser'
+password = 'password'
+db = 'nerine_db'
+charset = 'utf8mb4'
 
 
 def show_tepmlate_admins(request):
@@ -13,23 +21,23 @@ def show_tepmlate_users(request):
 
 def show_tepmlate_sites(request):
     page = 'sites'
-    fake_data = ['www.mail.ru', 'www.yandex.ru', 'www.rambler.ru', 'www.google.com', 'www.yahoo.com']
-    context = {'page': page, 'data': fake_data}
+    data = DBConnection(host, user, password, db, charset)
+    sites_list = data.get_list_sites()
+    context = {'page': page, 'data': sites_list}
     return render(request, 'sites.html', context)
 
 
 def show_tepmlate_persons(request):
     page = 'persons'
-    fake_data = ['Путин', 'Медведев', 'Навальный', 'Трамп']
-    context = {'page': page, 'data': fake_data}
+    data = DBConnection(host, user, password, db, charset)
+    persons_list = data.get_list_persons()
+    context = {'page': page, 'data': persons_list}
     return render(request, 'persons.html', context)
 
 
 def show_tepmlate_keywords(request):
     page = 'keywords'
-    fake_data = ['Путин', 'Путина', 'Путину',
-                 'Медведев', 'Медведева', 'Медведеву',
-                 'Навальный', 'Навальнова', 'Навальному',
-                 'Трамп', 'Трампа', 'Трампу']
-    context = {'page': page, 'data': fake_data}
+    data = DBConnection(host, user, password, db, charset)
+    keywords_list = data.get_list_keywords()
+    context = {'page': page, 'data': keywords_list}
     return render(request, 'keywords.html', context)
