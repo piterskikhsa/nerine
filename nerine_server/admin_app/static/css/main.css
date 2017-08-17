@@ -3,6 +3,18 @@ html, body {
     padding: 0;
 }
 
+h1 {
+    font-family: 'Cuprum', sans-serif;
+}
+
+a {
+    font-family: 'Maven Pro', sans-serif;
+}
+
+p, td {
+    font-family: 'Open Sans', sans-serif;
+}
+
 .active {
     background: #2e2e2e;
 }
@@ -113,6 +125,10 @@ button {
     border-radius: 6px;
     border: none;
     cursor: pointer;
+}
+
+button:hover {
+    background: #53b0e0;
 }
 
 
