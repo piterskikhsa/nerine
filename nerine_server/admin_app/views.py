@@ -9,6 +9,10 @@ db = 'nerine_db'
 charset = 'utf8mb4'
 
 
+def show_tepmlate_admin_auth(request):
+    return render(request, 'admin_auth.html')
+
+
 def show_tepmlate_admins(request):
     page = 'admins'
     context = {'page': page}

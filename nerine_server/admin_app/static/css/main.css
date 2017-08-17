@@ -19,6 +19,23 @@ p, td {
     background: #2e2e2e;
 }
 
+.login_form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    top: 30vh;
+}
+
+.auth_link {
+    margin: 15px;
+}
+
+.auth_link a {
+    font-size: 12px;
+    margin: 5px;
+}
+
 header {
     display: flex;
     justify-content: space-around;
@@ -117,7 +134,7 @@ main {
     margin-left: 20px;
 }
 
-button {
+.button {
     color: #f5f3f3;
     background: #189cde;
     margin: 5px;
@@ -127,7 +144,7 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+.button:hover {
     background: #53b0e0;
 }
 
