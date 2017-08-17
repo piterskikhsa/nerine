@@ -8,7 +8,7 @@ from .views import (show_tepmlate_admin_auth,
 
 
 urlpatterns = [
-    url(r'^', show_tepmlate_admin_auth),
+    url(r'^$', show_tepmlate_admin_auth),
     url(r'^admins/', show_tepmlate_admins, name='admins'),
     url(r'^users/', show_tepmlate_users, name='users'),
     url(r'^sites/', show_tepmlate_sites, name='sites'),
