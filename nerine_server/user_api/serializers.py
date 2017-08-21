@@ -1,22 +1,28 @@
-from rest_framework import serializers
-from .models import PersonPageRank, Persons, Pages
+from rest_framework.serializers import (
+                    ModelSerializer,
+                    SerializerMethodField
+)
+from base.models import (
+                     PersonPageRank,
+                     Person
+)
 
 
-class PageRankSerializer(serializers.ModelSerializer):
+class PersonSerializer(ModelSerializer):
+    class Meta:
+        model = Person
+        fields = ('Name', 'ranks_on_pages')
+
+class PageRankSerializer(ModelSerializer):
+    Name = SerializerMethodField()
+
     class Meta:
         model = PersonPageRank
-        fields = ('__all__')
+        fields = ('Name', 'rank')
+
+    def get_name(self, obj):
+        return str(obj.personId.Name)
 
 
-class PersonSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Persons
-        fields = ('__all__')
-
-
-class PagesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Pages
-        fields = ('__all__',)
 
 
