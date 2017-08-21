@@ -1,4 +1,5 @@
 Django==1.11.2
 djangorestframework==3.6.3
+djangorestframework-jwk==1.11.0
 PyMySQL==0.7.11
 pytz==2017.2

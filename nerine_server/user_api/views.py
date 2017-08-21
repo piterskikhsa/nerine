@@ -1,31 +1,36 @@
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from base.models import PersonPageRank, Page
-from .serializers import PageRankSerializer
+from django.db.models import Q
+#фильтры
+from rest_framework.filters import SearchFilter
+from rest_framework.pagination import LimitOffsetPagination
+from base.models import Person
+from .serializers import PersonSerializer
+from rest_framework.generics import ListAPIView
+#права доступа
+from rest_framework.permissions import (
+    IsAuthenticated,
+    AllowAny
+)
+from rest_framework.generics import ListAPIView
 
 
-@csrf_exempt
-def ranks_list(request):
+class FilterView(ListAPIView):
     """
-    List all ranks.
+    Этот класс отвечает за отображение списка или списка с фильтром
     """
-    if request.method == 'GET':
-        ranks = PersonPageRank.objects.all()
-        print(ranks)
-        serializer = PageRankSerializer(ranks, many=True)
-        return JsonResponse(serializer.data, safe=False)
+    serializer_class = PersonSerializer
+    permission_classes = [IsAuthenticated] #разгарничение прав
+    filter_backends = [SearchFilter] # фильтр ?search<name>
+    search_fields = ['name', 'ranks_on_pages__pageId__siteId__name'] #имена для поиска search в GET
+    pagination_class = LimitOffsetPagination # пагинация через limit
 
-@csrf_exempt
-def rank_detail(request, data):
-    """
-    rank for date
-    """
-    try:
-        rank = PersonPageRank.objects.filter(pageId__lastScanDate = data)
-        print(rank)
-    except PersonPageRank.DoesNotExist:
-        return HttpResponse(status=404)
+    def get_queryset(self, *args, **kwargs):
+        """
+        Метод получения объекта  Query set через параметр в GET запросе
 
-    if request.method == 'GET':
-        serializer = PageRankSerializer(rank, many=True)
-        return JsonResponse(serializer.data, safe=False )
+        :return: queryset_list - сортированный queryset
+        """
+        queryset_list = Person.objects.all()
+        query = self.request.GET.get('date')
+        if query:
+            queryset_list = queryset_list.filter(ranks_on_pages__pageId__lastScanDate__icontains=query)
+        return queryset_list

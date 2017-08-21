@@ -34,8 +34,8 @@ class Page(models.Model):
 
 
 class PersonPageRank(models.Model):
-    PersonID = models.ForeignKey(Person, related_name='person')
-    PageID = models.ForeignKey(Page, related_name='page')
+    PersonID = models.ForeignKey(Person, related_name='ranks_on_pages')
+    PageID = models.ForeignKey(Page, related_name='ranks')
     Rank = models.PositiveIntegerField()
 
     def __str__(self):
