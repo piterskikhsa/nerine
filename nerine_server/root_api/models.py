@@ -3,6 +3,7 @@ from django.db import models
 
 class Person(models.Model):
     Name = models.CharField(max_length=2048)
+    Owner = models.ForeignKey('auth.User', related_name='persons')
 
     def __str__(self):
         return self.Name
@@ -34,8 +35,8 @@ class Page(models.Model):
 
 
 class PersonPageRank(models.Model):
-    PersonID = models.ForeignKey(Person, related_name='ranks_on_pages')
-    PageID = models.ForeignKey(Page, related_name='ranks')
+    PersonID = models.ForeignKey(Person, related_name='person')
+    PageID = models.ForeignKey(Page, related_name='page')
     Rank = models.PositiveIntegerField()
 
     def __str__(self):
