@@ -1,3 +1,4 @@
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from .db_conn import DBConnection
 
@@ -10,7 +11,13 @@ charset = 'utf8mb4'
 
 
 def show_tepmlate_admin_auth(request):
-    return render(request, 'admin_auth.html')
+    if request.method == 'POST':
+        login = request.POST.get('login')
+        passwd = request.POST.get('passwd')
+        print(login, passwd)
+        return HttpResponseRedirect('sites')
+    else:
+        return render(request, 'admin_auth.html')
 
 
 def show_tepmlate_admins(request):
