@@ -36,7 +36,7 @@ class NerineDB:
                     conn.close()
             return result
 
-        return 
+        return decorated
         
     @property
     @mysql_connect
