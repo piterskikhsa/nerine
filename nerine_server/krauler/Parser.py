@@ -2,7 +2,6 @@
 # coding: utf-8
 
 
-import re
 from xml.etree import ElementTree as ET
 
 
@@ -44,17 +43,11 @@ def parse_xml(xml_file, site_id, mydb):
                 print(html_file, 'added to the database.')
 
 
-def parse_html(html_file, site_id, page_id, mydb):
-    pass
+def parse_html(html_file, site_id, page_id, mydb, persons_dictionary, seek_words):
+    with open(html_file, 'r', encoding='utf-8') as f:
+        html_words = f.read().split()
 
-
-def parse_file(mydb, file, site_id, page_id):
-    if re.search(r'[^\s]+robots\.txt\b', html_file):
-        parse_robots(file, site_id, mydb)
-    elif re.search(r'[^\s]+\.xml\b', html_file):
-        parse_xml(file, site_id, mydb)
-    else:
-        parse_html(file, site_id, page_id, mydb)
-
-
-    #mydb.set_pages_scantime(page_id)
+    print('seeking words...')
+    for word in html_words:
+        if word in seek_words:
+            print('FOUND THE WORD:', word)
