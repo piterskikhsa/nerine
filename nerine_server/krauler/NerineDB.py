@@ -65,6 +65,23 @@ class NerineDb:
 
         return [result, sql]
 
+    @property
+    @mysql_connect
+    def get_persons(self, cur):
+        sql = "SELECT Persons.ID, Persons.Name, Keywords.Name AS Cname FROM Persons" \
+              " INNER JOIN Keywords ON Persons.ID=Keywords.PersonID"
+        cur.execute(sql)
+        result = cur.fetchall()
+
+        persons = {}
+        for row in result:
+        #row[0] - Persons.ID; row[1] - Persons.Name; row[2] - Keywords.Name related to exact person
+            if row[0] not in persons:
+                persons[row[0]] = [row[1], row[2]]
+            else:
+                persons[row[0]].append(row[2])
+
+        return [persons, sql]
     
     @mysql_connect
     def insert_pages_robots(self, cur, *args):
