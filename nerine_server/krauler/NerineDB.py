@@ -2,10 +2,11 @@
 # coding: utf-8
 
 
+from _datetime import datetime, date
 import pymysql
 
 
-class NerineDB:
+class NerineDb:
     def __init__(self, host, port, user, passwd, db, charset):
         self._host = host
         self._port = port
@@ -29,6 +30,7 @@ class NerineDB:
                     result = func(self, cur, *args, **kwargs)
                 except Exception as e2:
                     result = e2.args
+                    conn.rollback()
                 else:
                     conn.commit()
                 finally:
@@ -37,34 +39,41 @@ class NerineDB:
             return result
 
         return decorated
+
+    @property
+    def get_time(self):
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
     @property
     @mysql_connect
     def get_sites_without_pages(self, cur):
-        sql = "SELECT ID FROM Sites WHERE Sites.ID NOT IN(SELECT SiteID FROM Pages)"
+        sql = "SELECT ID, Name FROM Sites WHERE Sites.ID NOT IN(SELECT SiteID FROM Pages)"
         
         cur.execute(sql)
         result = cur.fetchall()
 
-        return result
+        return [result, sql]
     
     @property
     @mysql_connect
     def get_pages_without_scan(self, cur):
-        sql = "SELECT Url,SiteID FROM Pages WHERE LastScanDate IS NULL"
-        
+        #sql = "SELECT Url, SiteID FROM `Pages` WHERE LastScanDate IS NULL"
+        sql = "SELECT Url, Name, SiteID, Pages.ID FROM `Pages` INNER JOIN Sites on" \
+              " Pages.SiteID = Sites.ID WHERE Pages.LastScanDate IS NULL;"
         cur.execute(sql)
         result = cur.fetchall()
 
-        return result
+        return [result, sql]
+
     
     @mysql_connect
     def insert_pages_robots(self, cur, *args):
-        args[0] = ''.join([args[0],'/robots.txt'])
-        sql = "INSERT INTO Pages(Url, SiteID) VALUES(%s,%s)"
+        url_robots = ''.join(['http://', args[0], '/robots.txt'])
+        site_id = args[1]
+        sql = "INSERT INTO `Pages` (Url, SiteID, FoundDateTime) VALUES (%s, %s, %s)"
         
         try:
-            cur.execute(sql, args)
+            cur.execute(sql, (url_robots, site_id, self.get_time))
         except Exception:
             return [False, sql, args]
         else:
@@ -75,9 +84,8 @@ class NerineDB:
         # I would recode it to FoundDateTime='DEFAULT CURRENT_TIMESTAMP'
         # Only if we have mysql higher than 5.6.4
         sql = "INSERT INTO Pages(Url, SiteID, FoundDateTime) VALUES(%s,%s,%s)"
-        
         try:
-            cur.execute(sql, args)
+            cur.execute(sql, (args[0], args[1], self.get_time))
         except Exception:
             return [False, sql, args]
         else:
@@ -109,10 +117,11 @@ class NerineDB:
             
     @mysql_connect
     def set_pages_scantime(self, cur, *args):
-        sql = "UPDATE `Pages` SET `LastScanDate`=" + args[1] + "WHERE PageID=" + args[0]
+        sql = "UPDATE `Pages` SET `LastScanDate`=%s WHERE ID=%s"
         try:
-            cur.execute(sql, args)
-        except Exception:
+            cur.execute(sql, (self.get_time, args[0]))
+        except Exception as e:
+            print('error on lastscandate',e)
             return [False, sql, args]
         else:
             return [True, sql, args]
