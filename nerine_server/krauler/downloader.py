@@ -41,19 +41,24 @@ def get_file(url, file):
 
 
 def get_html_file(url, file):
-    req = urllib.request.urlopen(url)
     try:
-        charset = req.info().get_content_charset()
-    except Exception as e:
-        print(e)
-        content = req.read().decode('utf-8')
+        req = urllib.request.urlopen(url)
+    except Exception as error:
+        print(error)
     else:
-        content = req.read().decode(charset)
-        print('charset =', charset)
-    finally:
-        with open(file, 'w', encoding='utf-8') as f:
-            f.write(content)
-        print('got', url)
+        try:
+            charset = req.info().get_content_charset()
+        except Exception as error:
+            print(error)
+            content = req.read().decode('utf-8')
+        else:
+            content = req.read().decode(charset)
+            print('charset =', charset)
+        finally:
+            with open(file, 'w', encoding='utf-8') as f:
+                f.write(content)
+            print('got', url)
+
 
 def download_html():
     new_pages =  mydb.get_pages_without_scan
@@ -62,7 +67,7 @@ def download_html():
         current_url = url[0]
         site_id = url[2]
         page_id = url[3]
-        file = url[0].replace('http://', '').replace('/', '_')
+        file = current_url.replace('http://', '').replace('/', '_')
         current_dir = os.path.join('html', str(url[1]))
         if not os.path.exists(current_dir):
             os.makedirs(current_dir)
@@ -79,7 +84,7 @@ def download_html():
             get_html_file(current_url, file)
             parse_html(file, site_id, page_id, mydb, persons_dictionary, seek_words)
 
-        #mydb.set_pages_scantime(page_id)
+        mydb.set_pages_scantime(page_id)
 
 
 def main():
@@ -94,6 +99,7 @@ def main():
 
     add_robots()
     download_html()
+
 
 if __name__ == '__main__':
     main()
