@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-
+import os
+import re
 from xml.etree import ElementTree as ET
+from urllib.parse import quote
 
 
 def parse_robots(robots_file, site_id, mydb):
@@ -18,6 +20,29 @@ def parse_robots(robots_file, site_id, mydb):
                 break
 
 
+def parse_url(url):
+    url_1 = re.search(r'^[^=]+=', url)
+    url_2 = re.search(r'=([^\s]+)', url)
+    if url_1 and url_2:
+        return '{}{}'.format(url_1.group(), quote(url_2.group(1)))
+
+
+def make_path_to_file(page_url, site_name):
+    file = page_url
+    print('parsing url..', page_url)
+    replacements = ('http://', 'https://', '?', '*', '"', ">", "<", "\\", ":", "|")
+    for r in replacements:
+        file = file.replace(r, '')
+    file = file.replace('/', '_')
+    current_dir = os.path.join('html', str(site_name))
+
+    if not os.path.exists(current_dir):
+        os.makedirs(current_dir)
+
+    path_to_file = os.path.join(current_dir, file)
+    return path_to_file
+
+
 def parse_xml(xml_file, site_id, mydb):
     print('found XML:', xml_file)
     with open(xml_file, 'r', encoding='utf-8') as f:
@@ -29,8 +54,12 @@ def parse_xml(xml_file, site_id, mydb):
 
     if 'sitemapindex' in root.tag:
         for elem in root.findall('ns:sitemap', nsmap):
-            if elem.find('ns:loc', nsmap).text:
-                print(elem.find('ns:loc', nsmap).text)
+            embedded_xml_file = elem.find('ns:loc', nsmap).text
+            if embedded_xml_file:
+                if re.search(r'[^\s]+\.xml\b', embedded_xml_file):
+                    print('found the embedded xml file:', embedded_xml_file)
+                    mydb.insert_pages_newone(embedded_xml_file, site_id)
+                    print(embedded_xml_file, 'added to the database.')
     elif 'urlset' in root.tag:
         for elem in root.findall('ns:url', nsmap):
             try:
