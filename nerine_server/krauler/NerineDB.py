@@ -2,7 +2,7 @@
 # coding: utf-8
 
 
-from _datetime import datetime, date
+from _datetime import datetime
 import pymysql
 
 
@@ -75,7 +75,7 @@ class NerineDb:
 
         persons = {}
         for row in result:
-        #row[0] - Persons.ID; row[1] - Persons.Name; row[2] - Keywords.Name related to exact person
+        # row[0] - Persons.ID; row[1] - Persons.Name; row[2] - Keywords.Name related to exact person
             if row[0] not in persons:
                 persons[row[0]] = [row[1], row[2]]
             else:
@@ -110,10 +110,10 @@ class NerineDb:
         
     @mysql_connect
     def set_person_page_rank(self, cur, *args):
-        # args=[PersonID, PageID, Rank]
-        sql = "SELECT * FROM `PersonPageRank` WHERE `PageID`=" + args[1]
+        # args=(PersonID, PageID, Rank)
+        sql = "SELECT * FROM `PersonPageRank` WHERE `PageID`=%s"
         try:
-            cur.execute(sql)
+            cur.execute(sql, (args[1],))
         except Exception:
             return [False, sql, args]
         else:
@@ -121,16 +121,20 @@ class NerineDb:
             
         # условие надо потестить, писал поток-сознанием, хотя тут все надо тестить
         if already_in:
-            sql = "UPDATE PersonPageRank SET Rank=" + args[2] + "WHERE PageID=" + args[1]
+            print('the rank of person_id =', args[0], 'and page_id =', args[1], 'is already in the Database')
+            sql = "UPDATE PersonPageRank SET Rank=%s WHERE PersonID=%s AND PageID=%s"
+            params = (args[2], args[0], args[1])
         else:
             sql = "INSERT INTO PersonPageRank(PersonID, PageID, Rank) VALUES(%s,%s,%s)"
+            params = args
             
         try:
-            cur.execute(sql, args)
-        except Exception:
+            cur.execute(sql, params)
+        except Exception as error:
+            print('error with adding page rank', error)
             return [False, sql, args]
         else:
-            return [True, sql, args]
+            return [True, sql, params]
             
     @mysql_connect
     def set_pages_scantime(self, cur, *args):
@@ -138,7 +142,7 @@ class NerineDb:
         try:
             cur.execute(sql, (self.get_time, args[0]))
         except Exception as e:
-            print('error on lastscandate',e)
+            print('error on lastscandate', e)
             return [False, sql, args]
         else:
             return [True, sql, args]
