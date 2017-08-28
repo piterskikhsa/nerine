@@ -44,10 +44,25 @@ def parse_xml(xml_file, site_id, mydb):
 
 
 def parse_html(html_file, site_id, page_id, mydb, persons_dictionary, seek_words):
+    def find_person_id(word):
+        for id, word_list in persons_dictionary.items():
+            if word in word_list:
+                return id
+
     with open(html_file, 'r', encoding='utf-8') as f:
         html_words = f.read().split()
+
+    page_rank_dict = {}
 
     print('seeking words...')
     for word in html_words:
         if word in seek_words:
-            print('FOUND THE WORD:', word)
+            if find_person_id(word) not in page_rank_dict:
+                page_rank_dict[find_person_id(word)] = 1
+            else:
+                page_rank_dict[find_person_id(word)] += 1
+
+    for person_id, rank in page_rank_dict.items():
+        result = mydb.set_person_page_rank(person_id, page_id, rank)
+        if result[0]:
+            print('added page rank (person_id, page_id, rank):', person_id, page_id, rank)
