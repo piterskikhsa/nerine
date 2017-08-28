@@ -57,7 +57,6 @@ class NerineDb:
     @property
     @mysql_connect
     def get_pages_without_scan(self, cur):
-        #sql = "SELECT Url, SiteID FROM `Pages` WHERE LastScanDate IS NULL"
         sql = "SELECT Url, Name, SiteID, Pages.ID FROM `Pages` INNER JOIN Sites on" \
               " Pages.SiteID = Sites.ID WHERE Pages.LastScanDate IS NULL;"
         cur.execute(sql)
@@ -118,8 +117,7 @@ class NerineDb:
             return [False, sql, args]
         else:
             already_in = cur.fetchall()
-            
-        # условие надо потестить, писал поток-сознанием, хотя тут все надо тестить
+
         if already_in:
             print('the rank of person_id =', args[0], 'and page_id =', args[1], 'is already in the Database')
             sql = "UPDATE PersonPageRank SET Rank=%s WHERE PersonID=%s AND PageID=%s"
