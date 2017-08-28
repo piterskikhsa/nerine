@@ -106,7 +106,7 @@ class NerineDb:
             return [False, sql, args]
         else:
             return [True, sql, args]
-        
+
     @mysql_connect
     def set_person_page_rank(self, cur, *args):
         # args=(PersonID, PageID, Rank)
