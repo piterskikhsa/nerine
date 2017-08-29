@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'css/main.css' %}">
+        <link rel="icon" href="#" type="image/x-icon">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Cuprum|Maven+Pro|Open+Sans">
+        <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+        <script src="{% static 'js/common.js' %}"></script>
+        <title>Nerine</title>
+    </head>
+    <body>
+        <header>
+            <span class="header_title">
+                <h1>NERINE </h1>
+                {% if user.is_superuser %}
+                <a href="{% url 'sites' %}">&#128736; Войти в панель администратора</a>
+                {% endif %}
+            </span>
+            {% if not user.is_authenticated %}
+                <div class="header__login-panel">
+                    <div id="header__login-panel_form">
+                        <form action="{% url 'login' %}" 
+                              method="post">
+                            {% csrf_token %}
+                            <input type="text"
+                                   name="login"
+                                   placeholder='username'
+                                   value="{{ login }}"
+                                   required>
+                            <input type="password"
+                                   name="passwd"
+                                   placeholder='password'
+                                   required>
+                            <input type="submit"
+                                   class="button"
+                                   value="Войти">
+                        </form>
+                    </div>
+                    <span class="header__login-panel_button"
+                         onclick="showForm('header__login-panel_form')">
+                        Войти
+                    </span>
+                </div>
+            {% else %}
+                <span class="header__logout-panel">
+                    Вы зашли как <span class="header__logout-panel_username"><b>{{ user.username }}</b>
+                </span><br>
+                    <a href="{% url 'logout' %}">Выйти</a>
+                </span>
+            {% endif %}
+        </header>
+        {% if errors %}
+        <p class="error">Некорректный логин или пароль</p>
+        {% endif %}
+        <main>
+            
+        </main>
+    </body>
+</html>
