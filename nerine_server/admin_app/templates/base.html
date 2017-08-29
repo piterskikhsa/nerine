@@ -7,46 +7,43 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="{% static 'css/main.css' %}">
         <link rel="icon" href="#" type="image/x-icon">
+        <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Cuprum|Maven+Pro|Open+Sans">
         <title>Nerine | Панель администратора</title>
     </head>
     <body>
         <header>
-            <h1 class="header_title">NERINE | Панель администратора</h1>
-            <div class="header__logout-panel">
-                <p>
-                    Вы зашли как 
-                    <span class="header__logout-panel_admin-name">{{ login }}</span>
-                </p>
-                <a class="header__logout-panel_logout-link" href="#">Выйти</a>
-            </div>
+            <span class="header_title">
+                <h1>NERINE | Панель администратора</h1>
+                <a href="/">&laquo; Выйти из панели администратора</a>
+            </span>
+            <span class="header__logout-panel">
+                Вы зашли как <span class="header__logout-panel_username"><b>{{ user.username }}</b>
+            </span><br>
+                <a href="{% url 'logout' %}">Выйти</a>
+            </span>
         </header>
         <main>
-           <ul class="nav-menu">
-               <li class="nav-menu_item {% if page == 'admins' %} active {% endif %}">
-                   <a href="{% url 'admins' %}">Администраторы</a>
-               </li>
-               <li class="nav-menu_item {% if page == 'users' %} active {% endif %}">
-                   <a href="{% url 'users' %}">Пользователи</a>
+            <ul class="nav-menu">
+                <li class="nav-menu_item {% if page == 'admins' %} active {% endif %}">
+                    <a href="{% url 'admins' %}">Администраторы</a>
+                </li>
+                <li class="nav-menu_item {% if page == 'users' %} active {% endif %}">
+                    <a href="{% url 'users' %}">Пользователи</a>
                </li>
                <li class="nav-menu_item {% if page == 'sites' %} active {% endif %}">
-                   <a href="{% url 'sites' %}">Сайты</a>
+                    <a href="{% url 'sites' %}">Сайты</a>
                </li>
                <li class="nav-menu_item {% if page == 'persons' %} active {% endif %}">
-                   <a href="{% url 'persons' %}">Личности</a>
+                    <a href="{% url 'persons' %}">Личности</a>
                </li>
                <li class="nav-menu_item {% if page == 'keywords' %} active {% endif %}">
-                   <a href="{% url 'keywords' %}">Ключевые слова</a>
+                    <a href="{% url 'keywords' %}">Ключевые слова</a>
                </li>
-           </ul>
+            </ul>
             <div class="content">
                 {% block content %}
                 {% endblock %}
-                <div class="content_buttons-block">
-                    <button class="button">Добавить</button>
-                    <button class="button">Редактировать</button>
-                    <button class="button">Удалить</button>
-                </div>
             </div>
         </main>               
         <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>

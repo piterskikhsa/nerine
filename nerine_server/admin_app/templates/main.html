@@ -14,7 +14,12 @@
     </head>
     <body>
         <header>
-            <h1 class="header_title">NERINE</h1>
+            <span class="header_title">
+                <h1>NERINE </h1>
+                {% if user.is_superuser %}
+                <a href="{% url 'sites' %}">&#128736; Войти в панель администратора</a>
+                {% endif %}
+            </span>
             {% if not user.is_authenticated %}
                 <div class="header__login-panel">
                     <div id="header__login-panel_form">
@@ -42,7 +47,8 @@
                 </div>
             {% else %}
                 <span class="header__logout-panel">
-                    Вы зашли как <span class="header__logout-panel_username">{{ user.username }}</span><br>
+                    Вы зашли как <span class="header__logout-panel_username"><b>{{ user.username }}</b>
+                </span><br>
                     <a href="{% url 'logout' %}">Выйти</a>
                 </span>
             {% endif %}

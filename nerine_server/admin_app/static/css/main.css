@@ -11,7 +11,7 @@ a, .header__login-panel_button {
     font-family: 'Maven Pro', sans-serif;
 }
 
-p, td, .button, .header__logout-panel {
+p, td, .button, .header__logout-panel, label {
     font-family: 'Open Sans', sans-serif;
 }
 
@@ -25,21 +25,14 @@ p, td, .button, .header__logout-panel {
     padding: 0 30px;
 }
 
-.login_form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    top: 30vh;
+table {
+    margin-top: 20px;
+    border-collapse: collapse;
 }
 
-.auth_link {
-    margin: 15px;
-}
-
-.auth_link a {
-    font-size: 12px;
-    margin: 5px;
+td {
+    border-bottom: 1px solid #888;
+    padding: 5px;
 }
 
 header {
@@ -53,7 +46,20 @@ header {
 }
 
 .header_title {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
     padding: 0 30px;
+}
+
+.header_title a {
+    padding-left: 20px;
+    color: #189cde;
+    text-decoration: none;
+}
+
+.header_title a:hover {
+    text-decoration: underline;
 }
 
 .header__login-panel {
@@ -96,6 +102,7 @@ header {
 .header__logout-panel a {
     color: #189cde;
     text-decoration: none;
+    padding-right: 52px;
 }
 
 .header__logout-panel a:hover {
@@ -112,21 +119,16 @@ main {
 
 .nav-menu {
     display: flex;
-    justify-content: center;
-    background: #444444;
-    width: 250px;
-    height: 100vh;
-}
-
-.nav-menu {
-    display: flex;
     flex-direction: column;
     justify-content: flex-start;
     width: 260px;
     align-items: center;
     list-style-type: none;
     margin: 0;
-    padding: 0;
+    padding: 29px 0;
+    background: #444444;
+    width: 250px;
+    height: 100vh;
 }
 
 .nav-menu_item {
@@ -147,27 +149,40 @@ main {
     background: #2e2e2e;
 }
 
-.data-table {
-    margin: 20px auto;
-    display: contents;
-    border-collapse: collapse;
-}
-
-.data-table_item {
-    padding: 5px 50px;
-    border: 1px solid #111;
-}
-
 .content {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     padding: 30px;
 }
 
-.content_buttons-block {
+.content_form {
+    display: flex;
+    flex-direction: row;
+}
+
+.content__save-button {
+    display: flex; 
+    align-items: center;
+}
+
+.content__save-button_text {
+   
+}
+
+.content_link {
+    color: #189cde;
+    text-decoration: none;
+    padding-top: 9px;
+}
+
+.content_link:hover {
+    text-decoration: underline;
+}
+
+.users-registration-form {
     display: flex;
     flex-direction: column;
-    margin-left: 20px;
+    align-items: end;
 }
 
 .button {
@@ -184,6 +199,22 @@ main {
     background: #53b0e0;
 }
 
+select {
+    margin: 0 5px 0 10px;
+}
+
+.user_reg_table {
+    color:  #2e2e2e;
+    text-align: right;
+}
+
+.user_reg_table td {
+    border: none;
+}
+
+.table_link {
+    color: #189cde;
+}
 
 
 

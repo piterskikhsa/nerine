@@ -2,5 +2,20 @@
 {% load staticfiles %}
 
 {% block content %}
-
+                <a href="{% url 'users_registration' %}" 
+                   class="content_link" >
+                    Зарегестрировать нового
+                </a>
+                <table>
+                    {% for item in data %}
+                    <tr>
+                        <td>{{ item }}</td>
+                        <td>
+                            <a href="{% url 'delete_user'  item.id %}" class="table_link">
+                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
 {% endblock %}
