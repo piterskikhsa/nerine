@@ -119,7 +119,7 @@ class NerineDb:
             already_in = cur.fetchall()
 
         if already_in:
-            print('the rank of person_id =', args[0], 'and page_id =', args[1], 'is already in the Database')
+            #print('the rank of person_id =', args[0], 'and page_id =', args[1], 'is already in the Database')
             sql = "UPDATE PersonPageRank SET Rank=%s WHERE PersonID=%s AND PageID=%s"
             params = (args[2], args[0], args[1])
         else:
@@ -129,7 +129,7 @@ class NerineDb:
         try:
             cur.execute(sql, params)
         except Exception as error:
-            print('error with adding page rank', error)
+            #print('error with adding page rank', error)
             return [False, sql, args]
         else:
             return [True, sql, params]
@@ -140,7 +140,7 @@ class NerineDb:
         try:
             cur.execute(sql, (self.get_time, args[0]))
         except Exception as e:
-            print('error on lastscandate', e)
+            #print('error on lastscandate', e)
             return [False, sql, args]
         else:
             return [True, sql, args]
