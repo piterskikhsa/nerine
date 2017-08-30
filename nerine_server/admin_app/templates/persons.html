@@ -2,10 +2,29 @@
 {% load staticfiles %}
 
 {% block content %}
-                <table class="data-table">
+                <form action="{% url page %}"
+                      method="post"
+                      class="content_form">
+                    {% csrf_token %}
+                    <div class="content__save-button">
+                        <input type="text" class="content__save-button_text" name="person_name">
+                        <input type="submit" class="button" value="Сохранить" name="save">
+                    </div>
+                </form>
+                <table>
                     {% for item in data %}
                     <tr>
-                        <td class="data-table_item">{{ item }}</td>
+                        <td>{{ item }}</td>
+                        <td>
+                            <a href="#" class="table_link">
+                                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'delete_person'  item.id %}" class="table_link">
+                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                            </a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </table>
