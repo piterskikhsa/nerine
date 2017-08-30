@@ -5,18 +5,21 @@ import os
 import re
 from xml.etree import ElementTree as ET
 from urllib.parse import quote
+import Logger
 
 
 def parse_robots(robots_file, site_id, mydb):
-    print('found robots.txt:', robots_file)
+    #print('found robots.txt:', robots_file)
+    Logger.logger.info('parsing robot: %s', robots_file)
     with open(robots_file, 'r', encoding='utf-8') as f:
         for line in f:
             sitemap_link = re.search(r'^[S|s]itemap:([\s]*[^\s]+)\s', line)
             if sitemap_link:
-                print('adding a new Sitemap link..')
+                #print('adding a new Sitemap link..')
                 sitemap_link = sitemap_link.group(1).strip()
                 mydb.insert_pages_newone(sitemap_link, site_id)
-                print(sitemap_link, 'added to the database.')
+                #print(sitemap_link, 'added to the database.')
+                Logger.logger.info('%s was added to the database.', sitemap_link)
                 break
 
 
@@ -29,7 +32,7 @@ def parse_url(url):
 
 def make_path_to_file(page_url, site_name):
     file = page_url
-    print('parsing url..', page_url)
+    #print('parsing url..', page_url)
     replacements = ('http://', 'https://', '?', '*', '"', ">", "<", "\\", ":", "|")
     for r in replacements:
         file = file.replace(r, '')
@@ -44,7 +47,8 @@ def make_path_to_file(page_url, site_name):
 
 
 def parse_xml_sitemap(xml_file, site_id, mydb):
-    print('parsing.. a xml-sitemap:', xml_file)
+    #print('parsing.. a xml-sitemap:', xml_file)
+    Logger.logger.info('parsing XML: %s', xml_file)
     with open(xml_file, 'r', encoding='utf-8') as f:
         tree = ET.parse(f)
 
@@ -57,31 +61,36 @@ def parse_xml_sitemap(xml_file, site_id, mydb):
             embedded_xml_file = elem.find('ns:loc', nsmap).text
             if embedded_xml_file:
                 if re.search(r'[^\s]+\.xml\b', embedded_xml_file):
-                    print('found the embedded xml file:', embedded_xml_file)
+                    #print('found the embedded xml file:', embedded_xml_file)
                     mydb.insert_pages_newone(embedded_xml_file, site_id)
-                    print(embedded_xml_file, 'added to the database.')
+                    #print(embedded_xml_file, 'added to the database.')
+                    Logger.logger.info('%s was added to the database', embedded_xml_file)
     elif 'urlset' in root.tag:
         for elem in root.findall('ns:url', nsmap):
             try:
                 html_file = elem.find('ns:loc', nsmap).text
-            except Exception as e:
-                print('Error:', e)
+            except Exception as error:
+                #print('Error:', error)
+                Logger.logger.error('could not find an urlset in XML: %s', error)
             else:
-                print('found a html file:', html_file)
+                #print('found a html file:', html_file)
                 mydb.insert_pages_newone(html_file, site_id)
-                print(html_file, 'added to the database.')
+                #print(html_file, 'added to the database.')
+                Logger.logger.info('%s was inserted to the database', html_file)
 
 
 def parse_txt_sitemap(txt_sitemap, site_id, mydb):
-    print('parsing a txt-sitemap')
+    #print('parsing a txt-sitemap')
+    Logger.logger.info('parsing a sitemap.txt: %s', txt_sitemap)
     with open(txt_sitemap, 'r', encoding='utf-8') as f:
         lines = f.readlines()
         for line in lines:
             if re.search(r'^http[s]{0,1}:[/]{2}[\w]+[^\s]+', line):
                 line = line.strip()
-                print('found a html file:', line)
+                #print('found a html file:', line)
                 mydb.insert_pages_newone(line, site_id)
-                print(line, 'added to the database.')
+                #print(line, 'added to the database.')
+                Logger.logger.info('%s was inserted to the database.', line)
 
 
 def parse_html(html_file, site_id, page_id, mydb, persons_dictionary, seek_words):
@@ -95,7 +104,8 @@ def parse_html(html_file, site_id, page_id, mydb, persons_dictionary, seek_words
 
     page_rank_dict = {}
 
-    print('seeking words...')
+    #print('seeking words...')
+    Logger.logger.info('seeking words in %s ...', html_file)
     for word in html_words:
         if word in seek_words:
             if find_person_id(word) not in page_rank_dict:
@@ -106,4 +116,5 @@ def parse_html(html_file, site_id, page_id, mydb, persons_dictionary, seek_words
     for person_id, rank in page_rank_dict.items():
         result = mydb.set_person_page_rank(person_id, page_id, rank)
         if result[0]:
-            print('added page rank (person_id, page_id, rank):', person_id, page_id, rank)
+            #print('added page rank (person_id, page_id, rank):', person_id, page_id, rank)
+            Logger.logger.info('added page rank (personID, PageID, Rank): %s %s %s', person_id, page_id, rank)
