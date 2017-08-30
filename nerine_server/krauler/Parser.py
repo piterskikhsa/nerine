@@ -11,7 +11,7 @@ def parse_robots(robots_file, site_id, mydb):
     print('found robots.txt:', robots_file)
     with open(robots_file, 'r', encoding='utf-8') as f:
         for line in f:
-            sitemap_link = re.search(r'^Sitemap:([\s]*[^\s]+)\s', line)
+            sitemap_link = re.search(r'^[S|s]itemap:([\s]*[^\s]+)\s', line)
             if sitemap_link:
                 print('adding a new Sitemap link..')
                 sitemap_link = sitemap_link.group(1).strip()
@@ -43,8 +43,8 @@ def make_path_to_file(page_url, site_name):
     return path_to_file
 
 
-def parse_xml(xml_file, site_id, mydb):
-    print('found XML:', xml_file)
+def parse_xml_sitemap(xml_file, site_id, mydb):
+    print('parsing.. a xml-sitemap:', xml_file)
     with open(xml_file, 'r', encoding='utf-8') as f:
         tree = ET.parse(f)
 
@@ -70,6 +70,18 @@ def parse_xml(xml_file, site_id, mydb):
                 print('found a html file:', html_file)
                 mydb.insert_pages_newone(html_file, site_id)
                 print(html_file, 'added to the database.')
+
+
+def parse_txt_sitemap(txt_sitemap, site_id, mydb):
+    print('parsing a txt-sitemap')
+    with open(txt_sitemap, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+        for line in lines:
+            if re.search(r'^http[s]{0,1}:[/]{2}[\w]+[^\s]+', line):
+                line = line.strip()
+                print('found a html file:', line)
+                mydb.insert_pages_newone(line, site_id)
+                print(line, 'added to the database.')
 
 
 def parse_html(html_file, site_id, page_id, mydb, persons_dictionary, seek_words):
