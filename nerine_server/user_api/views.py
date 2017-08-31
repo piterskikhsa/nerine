@@ -12,25 +12,46 @@ from rest_framework.permissions import (
 )
 from rest_framework.generics import ListAPIView
 
+class UserUpdatePassword(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserInfoSerialaser
+    lookup_field = 'username'
+    permission_classes = [IsAuthenticated, IsOwner]
 
-class FilterView(ListAPIView):
-    """
-    Этот класс отвечает за отображение списка или списка с фильтром
-    """
-    serializer_class = PersonSerializer
-    permission_classes = [IsAuthenticated] #разгарничение прав
-    filter_backends = [SearchFilter] # фильтр ?search<name>
-    search_fields = ['name', 'ranks_on_pages__pageId__siteId__name'] #имена для поиска search в GET
-    pagination_class = LimitOffsetPagination # пагинация через limit
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+
+
+class SitesViewer(generics.ListAPIView):
+    queryset = Sites.objects.all()
+    serializer_class = SitesSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
+
+
+
+class SitesPersonViewer(generics.ListAPIView):
+    date = Page.objects.latest('lastScanDate').lastScanDate
+    queryset = PersonPageRank.objects.filter(pageId__lastScanDate=date)
+    serializer_class = SitesPersonRankSerialazer
+    filter_backends = [SearchFilter]  # Виды фильтров
+    search_fields = ['pageId__siteId__name']
+    permission_classes = [IsAuthenticated, IsOwner]
+
+
+
+class SitesPeriodViewer(generics.ListAPIView):
+    serializer_class = SitesPersonRankSerialazer
+    filter_backends = [SearchFilter]  # Виды фильтров
+    search_fields = ['pageId__siteId__name']
+    permission_classes = [IsAuthenticated, IsOwner]
 
     def get_queryset(self, *args, **kwargs):
-        """
-        Метод получения объекта  Query set через параметр в GET запросе
-
-        :return: queryset_list - сортированный queryset
-        """
-        queryset_list = Person.objects.all()
-        query = self.request.GET.get('date')
+        queryset_list = PersonPageRank.objects.all()
+        query = self.request.GET.get('from')
+        query = query.split(':')
         if query:
-            queryset_list = queryset_list.filter(ranks_on_pages__pageId__lastScanDate__icontains=query)
+            queryset_list = PersonPageRank.objects.filter(
+                pageId__lastScanDate__range=(query[0], query[1])
+            )
         return queryset_list
