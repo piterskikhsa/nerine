@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.5
 # coding: utf-8
 
 
@@ -13,7 +13,7 @@ from Parser import parse_robots, parse_xml_sitemap, parse_html, make_path_to_fil
 
 
 mydb = NerineDB.NerineDb(
-        db_host , db_port, db_username, db_password, db_name, db_charset)
+            db_host , db_port, db_username, db_password, db_name, db_charset)
 
 
 def add_robots():
@@ -53,7 +53,7 @@ def get_html_file(url, file_path):
         req = urllib.request.urlopen(url)
     except Exception as error:
         #print(error)
-        Logger.logger.error('could not get %s: output:', url, error)
+        Logger.logger.error('could not get %s: output: %s', url, error)
         return False
     else:
         try:
@@ -145,10 +145,11 @@ def download_html():
 
 
 def main():
+    Logger.logger.info('Krauler started.')
     global persons_dictionary
     global seek_words
 
-    persons_dictionary = mydb.get_persons[0]
+    persons_dictionary = mydb.get_persons
     seek_words = []
 
     for pair in persons_dictionary.items():
@@ -156,6 +157,8 @@ def main():
 
     add_robots()
     download_html()
+
+    Logger.logger.info('Krauler finished his work.')
 
 
 if __name__ == '__main__':
