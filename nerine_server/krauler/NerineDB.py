@@ -1,9 +1,10 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python3.5
 # coding: utf-8
 
 
 from _datetime import datetime
 import pymysql
+import Logger
 
 
 class NerineDb:
@@ -23,8 +24,9 @@ class NerineDb:
                     passwd=self._passwd, db=self._db, charset=self._charset)
 
                 cur = conn.cursor()
-            except Exception as e:
-                result = e.args
+            except Exception:
+                Logger.logger.error('Could not connect to the database.')
+                exit(0)
             else:
                 try:
                     result = func(self, cur, *args, **kwargs)
@@ -47,7 +49,7 @@ class NerineDb:
     @property
     @mysql_connect
     def get_sites_without_pages(self, cur):
-        sql = "SELECT ID, Name FROM Sites WHERE Sites.ID NOT IN(SELECT SiteID FROM Pages)"
+        sql = "SELECT id, Name FROM Sites WHERE Sites.id NOT IN(SELECT SiteID FROM Pages)"
         
         cur.execute(sql)
         result = cur.fetchall()
@@ -57,8 +59,8 @@ class NerineDb:
     @property
     @mysql_connect
     def get_pages_without_scan(self, cur):
-        sql = "SELECT Url, Name, SiteID, Pages.ID FROM `Pages` INNER JOIN Sites on" \
-              " Pages.SiteID = Sites.ID WHERE Pages.LastScanDate IS NULL;"
+        sql = "SELECT Url, Name, SiteID, Pages.id FROM `Pages` INNER JOIN Sites on" \
+              " Pages.Siteid = Sites.id WHERE Pages.LastScanDate IS NULL;"
         cur.execute(sql)
         result = cur.fetchall()
 
@@ -67,20 +69,24 @@ class NerineDb:
     @property
     @mysql_connect
     def get_persons(self, cur):
-        sql = "SELECT Persons.ID, Persons.Name, Keywords.Name AS Cname FROM Persons" \
-              " INNER JOIN Keywords ON Persons.ID=Keywords.PersonID"
-        cur.execute(sql)
-        result = cur.fetchall()
-
         persons = {}
+        try:
+            sql = "SELECT Persons.id, Persons.Name, Keywords.Name AS Cname FROM Persons" \
+                  " INNER JOIN Keywords ON Persons.id=Keywords.PersonID"
+            cur.execute(sql)
+        except Exception:
+            Logger.logger.error('Could not get persons from the database.')
+            return persons
+        else:
+            result = cur.fetchall()
+
         for row in result:
-        # row[0] - Persons.ID; row[1] - Persons.Name; row[2] - Keywords.Name related to exact person
+        # row[0] - Persons.id; row[1] - Persons.Name; row[2] - Keywords.Name related to exact person
             if row[0] not in persons:
                 persons[row[0]] = [row[1], row[2]]
             else:
                 persons[row[0]].append(row[2])
-
-        return [persons, sql]
+        return persons
     
     @mysql_connect
     def insert_pages_robots(self, cur, *args):
@@ -89,8 +95,10 @@ class NerineDb:
         sql = "INSERT INTO `Pages` (Url, SiteID, FoundDateTime) VALUES (%s, %s, %s)"
         
         try:
+            print('inserting robot', url_robots, site_id, self.get_time)
             cur.execute(sql, (url_robots, site_id, self.get_time))
-        except Exception:
+        except Exception as error:
+            print('kakaya-to xuinya', error)
             return [False, sql, args]
         else:
             return [True, sql, args]
@@ -136,7 +144,7 @@ class NerineDb:
             
     @mysql_connect
     def set_pages_scantime(self, cur, *args):
-        sql = "UPDATE `Pages` SET `LastScanDate`=%s WHERE ID=%s"
+        sql = "UPDATE `Pages` SET `LastScanDate`=%s WHERE id=%s"
         try:
             cur.execute(sql, (self.get_time, args[0]))
         except Exception as e:
