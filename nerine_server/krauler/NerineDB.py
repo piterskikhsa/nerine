@@ -50,11 +50,9 @@ class NerineDb:
     @mysql_connect
     def get_sites_without_pages(self, cur):
         sql = "SELECT id, Name FROM Sites WHERE Sites.id NOT IN(SELECT SiteID FROM Pages)"
-        
         cur.execute(sql)
         result = cur.fetchall()
-
-        return [result, sql]
+        return result
     
     @property
     @mysql_connect
@@ -63,8 +61,16 @@ class NerineDb:
               " Pages.Siteid = Sites.id WHERE Pages.LastScanDate IS NULL;"
         cur.execute(sql)
         result = cur.fetchall()
+        return result
 
-        return [result, sql]
+    @property
+    @mysql_connect
+    def get_pages_scanned_day_ago(self, cur):
+        sql = "SELECT Url, Name, SiteID, Pages.id FROM `Pages` INNER JOIN Sites on" \
+              " Pages.Siteid = Sites.id WHERE LastScanDate <= CURDATE() - INTERVAL 1 DAY LIMIT 100"
+        cur.execute(sql)
+        result = cur.fetchall()
+        return result
 
     @property
     @mysql_connect
@@ -83,25 +89,31 @@ class NerineDb:
         for row in result:
         # row[0] - Persons.id; row[1] - Persons.Name; row[2] - Keywords.Name related to exact person
             if row[0] not in persons:
-                persons[row[0]] = [row[1], row[2]]
+                persons[row[0]] = [row[1].lower(), row[2].lower()]
             else:
-                persons[row[0]].append(row[2])
+                persons[row[0]].append(row[2].lower())
         return persons
-    
+
+    @mysql_connect
+    def check_if_page_exists(self, cur, *args):
+        sql = "SELECT ID FROM Pages WHERE Url=%s LIMIT 1"
+        cur.execute(sql, args[0])
+        if cur.rowcount == 0:
+            return False
+        return True
+
     @mysql_connect
     def insert_pages_robots(self, cur, *args):
         url_robots = ''.join(['http://', args[0], '/robots.txt'])
         site_id = args[1]
         sql = "INSERT INTO `Pages` (Url, SiteID, FoundDateTime) VALUES (%s, %s, %s)"
-        
         try:
-            print('inserting robot', url_robots, site_id, self.get_time)
             cur.execute(sql, (url_robots, site_id, self.get_time))
         except Exception as error:
-            print('kakaya-to xuinya', error)
-            return [False, sql, args]
+            Logger.logger.error('Could not insert the new robots-page: %s', error)
+            return False
         else:
-            return [True, sql, args]
+            return True
     
     @mysql_connect
     def insert_pages_newone(self, cur, *args):
@@ -110,10 +122,12 @@ class NerineDb:
         sql = "INSERT INTO Pages(Url, SiteID, FoundDateTime) VALUES(%s,%s,%s)"
         try:
             cur.execute(sql, (args[0], args[1], self.get_time))
-        except Exception:
-            return [False, sql, args]
+        except Exception as error:
+            Logger.logger.error('Could not insert the new page: %s', error)
+            return False
         else:
-            return [True, sql, args]
+            Logger.logger.info('%s added to the database', args[0])
+            return True
 
     @mysql_connect
     def set_person_page_rank(self, cur, *args):
@@ -133,22 +147,21 @@ class NerineDb:
         else:
             sql = "INSERT INTO PersonPageRank(PersonID, PageID, Rank) VALUES(%s,%s,%s)"
             params = args
-            
         try:
             cur.execute(sql, params)
         except Exception as error:
-            #print('error with adding page rank', error)
-            return [False, sql, args]
+            Logger.logger.error('Could not set PersonPageRank: %s', error)
+            return False
         else:
-            return [True, sql, params]
+            return True
             
     @mysql_connect
     def set_pages_scantime(self, cur, *args):
         sql = "UPDATE `Pages` SET `LastScanDate`=%s WHERE id=%s"
         try:
             cur.execute(sql, (self.get_time, args[0]))
-        except Exception as e:
-            #print('error on lastscandate', e)
-            return [False, sql, args]
+        except Exception as error:
+            Logger.logger.error('Could not set LastScanDate: %s', error)
+            return False
         else:
-            return [True, sql, args]
+            return True

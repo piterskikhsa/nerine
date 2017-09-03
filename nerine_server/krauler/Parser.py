@@ -17,9 +17,8 @@ def parse_robots(robots_file, site_id, mydb):
             if sitemap_link:
                 #print('adding a new Sitemap link..')
                 sitemap_link = sitemap_link.group(1).strip()
-                mydb.insert_pages_newone(sitemap_link, site_id)
-                #print(sitemap_link, 'added to the database.')
-                Logger.logger.info('%s was added to the database.', sitemap_link)
+                if not mydb.check_if_page_exists(sitemap_link):
+                    mydb.insert_pages_newone(sitemap_link, site_id)
                 break
 
 
@@ -62,9 +61,8 @@ def parse_xml_sitemap(xml_file, site_id, mydb):
             if embedded_xml_file:
                 if re.search(r'[^\s]+\.xml\b', embedded_xml_file):
                     #print('found the embedded xml file:', embedded_xml_file)
-                    mydb.insert_pages_newone(embedded_xml_file, site_id)
-                    #print(embedded_xml_file, 'added to the database.')
-                    Logger.logger.info('%s was added to the database', embedded_xml_file)
+                    if not mydb.check_if_page_exists(embedded_xml_file):
+                        mydb.insert_pages_newone(embedded_xml_file, site_id)
     elif 'urlset' in root.tag:
         for elem in root.findall('ns:url', nsmap):
             try:
@@ -74,9 +72,8 @@ def parse_xml_sitemap(xml_file, site_id, mydb):
                 Logger.logger.error('could not find an urlset in XML: %s', error)
             else:
                 #print('found a html file:', html_file)
-                mydb.insert_pages_newone(html_file, site_id)
-                #print(html_file, 'added to the database.')
-                Logger.logger.info('%s was inserted to the database', html_file)
+                if not mydb.check_if_page_exists(html_file):
+                    mydb.insert_pages_newone(html_file, site_id)
 
 
 def parse_txt_sitemap(txt_sitemap, site_id, mydb):
@@ -88,9 +85,8 @@ def parse_txt_sitemap(txt_sitemap, site_id, mydb):
             if re.search(r'^http[s]{0,1}:[/]{2}[\w]+[^\s]+', line):
                 line = line.strip()
                 #print('found a html file:', line)
-                mydb.insert_pages_newone(line, site_id)
-                #print(line, 'added to the database.')
-                Logger.logger.info('%s was inserted to the database.', line)
+                if not mydb.check_if_page_exists(line):
+                    mydb.insert_pages_newone(line, site_id)
 
 
 def parse_html(html_file, site_id, page_id, mydb, persons_dictionary, seek_words):
@@ -100,7 +96,7 @@ def parse_html(html_file, site_id, page_id, mydb, persons_dictionary, seek_words
                 return id
 
     with open(html_file, 'r', encoding='utf-8') as f:
-        html_words = f.read().split()
+        html_words = f.read().lower().split()
 
     page_rank_dict = {}
 
@@ -115,6 +111,6 @@ def parse_html(html_file, site_id, page_id, mydb, persons_dictionary, seek_words
 
     for person_id, rank in page_rank_dict.items():
         result = mydb.set_person_page_rank(person_id, page_id, rank)
-        if result[0]:
+        if result:
             #print('added page rank (person_id, page_id, rank):', person_id, page_id, rank)
             Logger.logger.info('added page rank (personID, PageID, Rank): %s %s %s', person_id, page_id, rank)

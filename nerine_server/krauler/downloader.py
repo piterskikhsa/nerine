@@ -18,9 +18,9 @@ mydb = NerineDB.NerineDb(
 
 def add_robots():
     new_sites = mydb.get_sites_without_pages
-    for i in new_sites[0]:
-        r = mydb.insert_pages_robots(i[1], i[0])
-        if r[0]:
+    for site in new_sites:
+        result = mydb.insert_pages_robots(site[1], site[0])
+        if result:
             Logger.logger.info('new robots page inserted.')
             #print('new robots page inserted.')
         else:
@@ -111,14 +111,12 @@ def ungzip_file(gz_file):
                 return True
 
 
-def download_html():
-    new_pages =  mydb.get_pages_without_scan
-
-    for url in new_pages[0]:
-        current_url = url[0]
-        site_name = url[1]
-        site_id = url[2]
-        page_id = url[3]
+def download_html(pages):
+    for page in pages:
+        current_url = page[0]
+        site_name = page[1]
+        site_id = page[2]
+        page_id = page[3]
 
         path_to_file = make_path_to_file(current_url, site_name)
         #print('path to file in downloader', path_to_file)
@@ -156,7 +154,12 @@ def main():
         seek_words.extend(pair[1])
 
     add_robots()
-    download_html()
+
+    new_pages = mydb.get_pages_without_scan
+    download_html(new_pages)
+
+    repeat_pages = mydb.get_pages_scanned_day_ago
+    download_html(repeat_pages)
 
     Logger.logger.info('Krauler finished his work.')
 
