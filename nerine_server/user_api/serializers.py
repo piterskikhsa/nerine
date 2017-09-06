@@ -1,20 +1,21 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
-rom rest_framework.serializers import (
+from rest_framework.serializers import (
                     ModelSerializer,
                     SerializerMethodField
 )
+from rest_framework import serializers
 from base.models import (
                      PersonPageRank,
                      Page,
-                     Sites
+                     Site
 )
 
 User = get_user_model()
 
 class UserInfoSerialaser(ModelSerializer):
-    username = CharField(read_only=True, allow_blank=True)
-    email = CharField(read_only=True, allow_blank=True)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+    username = serializers.CharField(read_only=True, allow_blank=True)
+    email = serializers.CharField(read_only=True, allow_blank=True)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
     class Meta:
         model = User
         fields = ('username', 'email', 'password')
@@ -32,25 +33,25 @@ class UserInfoSerialaser(ModelSerializer):
 class SitesSerializer(ModelSerializer):
     """Сайты для списка выбора"""
     class Meta:
-        model = Sites
+        model = Site
         fields = ('__all__')
 
 
 class SitesPersonRankSerialazer(ModelSerializer):
-    person = SerializerMethodField()
-    rank = SerializerMethodField()
-    lastDate = SerializerMethodField()
+    Person = SerializerMethodField()
+    Rank = SerializerMethodField()
+    LastDate = SerializerMethodField()
     class Meta:
-        model = Sites
-        fields = ('lastDate', 'person', 'rank')
+        model = Site
+        fields = ('LastDate', 'Person', 'Rank')
 
-    def get_person(self, obj):
-        return str(obj.personId.name)
+    def get_Person(self, obj):
+        return str(obj.PersonID.Name)
 
-    def get_rank(self, obj):
-        return obj.rank
+    def get_Rank(self, obj):
+        return obj.Rank
 
-    def get_lastDate(self, obj):
-        return obj.pageId.lastScanDate
+    def get_LastDate(self, obj):
+        return obj.PageID.LastScanDate
 
 
