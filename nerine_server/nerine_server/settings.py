@@ -141,5 +141,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+<<<<<<< HEAD
+   )
+=======
    ),
+>>>>>>> d43379b329012fb820dac3a27079a96f58f5b778
 }
