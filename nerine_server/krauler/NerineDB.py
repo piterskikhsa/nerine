@@ -2,10 +2,11 @@
 # coding: utf-8
 
 
+from _datetime import datetime
 import pymysql
 
 
-class NerineDB:
+class NerineDb:
     def __init__(self, host, port, user, passwd, db, charset):
         self._host = host
         self._port = port
@@ -29,6 +30,7 @@ class NerineDB:
                     result = func(self, cur, *args, **kwargs)
                 except Exception as e2:
                     result = e2.args
+                    conn.rollback()
                 else:
                     conn.commit()
                 finally:
@@ -36,35 +38,58 @@ class NerineDB:
                     conn.close()
             return result
 
-        return 
+        return decorated
+
+    @property
+    def get_time(self):
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
     @property
     @mysql_connect
     def get_sites_without_pages(self, cur):
-        sql = "SELECT ID FROM Sites WHERE Sites.ID NOT IN(SELECT SiteID FROM Pages)"
+        sql = "SELECT ID, Name FROM Sites WHERE Sites.ID NOT IN(SELECT SiteID FROM Pages)"
         
         cur.execute(sql)
         result = cur.fetchall()
 
-        return result
+        return [result, sql]
     
     @property
     @mysql_connect
     def get_pages_without_scan(self, cur):
-        sql = "SELECT Url,SiteID FROM Pages WHERE LastScanDate IS NULL"
-        
+        sql = "SELECT Url, Name, SiteID, Pages.ID FROM `Pages` INNER JOIN Sites on" \
+              " Pages.SiteID = Sites.ID WHERE Pages.LastScanDate IS NULL;"
         cur.execute(sql)
         result = cur.fetchall()
 
-        return result
+        return [result, sql]
+
+    @property
+    @mysql_connect
+    def get_persons(self, cur):
+        sql = "SELECT Persons.ID, Persons.Name, Keywords.Name AS Cname FROM Persons" \
+              " INNER JOIN Keywords ON Persons.ID=Keywords.PersonID"
+        cur.execute(sql)
+        result = cur.fetchall()
+
+        persons = {}
+        for row in result:
+        # row[0] - Persons.ID; row[1] - Persons.Name; row[2] - Keywords.Name related to exact person
+            if row[0] not in persons:
+                persons[row[0]] = [row[1], row[2]]
+            else:
+                persons[row[0]].append(row[2])
+
+        return [persons, sql]
     
     @mysql_connect
     def insert_pages_robots(self, cur, *args):
-        args[0] = ''.join([args[0],'/robots.txt'])
-        sql = "INSERT INTO Pages(Url, SiteID) VALUES(%s,%s)"
+        url_robots = ''.join(['http://', args[0], '/robots.txt'])
+        site_id = args[1]
+        sql = "INSERT INTO `Pages` (Url, SiteID, FoundDateTime) VALUES (%s, %s, %s)"
         
         try:
-            cur.execute(sql, args)
+            cur.execute(sql, (url_robots, site_id, self.get_time))
         except Exception:
             return [False, sql, args]
         else:
@@ -75,44 +100,47 @@ class NerineDB:
         # I would recode it to FoundDateTime='DEFAULT CURRENT_TIMESTAMP'
         # Only if we have mysql higher than 5.6.4
         sql = "INSERT INTO Pages(Url, SiteID, FoundDateTime) VALUES(%s,%s,%s)"
-        
         try:
-            cur.execute(sql, args)
+            cur.execute(sql, (args[0], args[1], self.get_time))
         except Exception:
             return [False, sql, args]
         else:
             return [True, sql, args]
-        
+
     @mysql_connect
     def set_person_page_rank(self, cur, *args):
-        # args=[PersonID, PageID, Rank]
-        sql = "SELECT * FROM `PersonPageRank` WHERE `PageID`=" + args[1]
+        # args=(PersonID, PageID, Rank)
+        sql = "SELECT * FROM `PersonPageRank` WHERE `PageID`=%s"
         try:
-            cur.execute(sql)
+            cur.execute(sql, (args[1],))
         except Exception:
             return [False, sql, args]
         else:
             already_in = cur.fetchall()
-            
-        # условие надо потестить, писал поток-сознанием, хотя тут все надо тестить
+
         if already_in:
-            sql = "UPDATE PersonPageRank SET Rank=" + args[2] + "WHERE PageID=" + args[1]
+            #print('the rank of person_id =', args[0], 'and page_id =', args[1], 'is already in the Database')
+            sql = "UPDATE PersonPageRank SET Rank=%s WHERE PersonID=%s AND PageID=%s"
+            params = (args[2], args[0], args[1])
         else:
             sql = "INSERT INTO PersonPageRank(PersonID, PageID, Rank) VALUES(%s,%s,%s)"
+            params = args
             
         try:
-            cur.execute(sql, args)
-        except Exception:
+            cur.execute(sql, params)
+        except Exception as error:
+            #print('error with adding page rank', error)
             return [False, sql, args]
         else:
-            return [True, sql, args]
+            return [True, sql, params]
             
     @mysql_connect
     def set_pages_scantime(self, cur, *args):
-        sql = "UPDATE `Pages` SET `LastScanDate`=" + args[1] + "WHERE PageID=" + args[0]
+        sql = "UPDATE `Pages` SET `LastScanDate`=%s WHERE ID=%s"
         try:
-            cur.execute(sql, args)
-        except Exception:
+            cur.execute(sql, (self.get_time, args[0]))
+        except Exception as e:
+            #print('error on lastscandate', e)
             return [False, sql, args]
         else:
             return [True, sql, args]
