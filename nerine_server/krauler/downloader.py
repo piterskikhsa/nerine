@@ -5,6 +5,7 @@
 import re
 import urllib.request
 import gzip
+from bs4 import BeautifulSoup
 from config import db_host, db_port, db_username, db_password, db_name, db_charset
 import NerineDB
 import  Logger
@@ -72,7 +73,11 @@ def get_html_file(url, file_path):
                     Logger.logger.error('could not determine charset. %s . going to use utf-8..', error)
                     content = req.read().decode('utf-8')
                 else:
-                    content = req.read().decode(charset)
+                    try:
+                        content = req.read().decode(charset)
+                    except Exception as error:
+                        Logger.logger.error('could not decode %s %s', url, error)
+                        content = req.read().decode('utf-8')
                     #print('charset =', charset)
                     Logger.logger.info('charset is %s', charset)
                 finally:
@@ -90,7 +95,6 @@ def get_html_file(url, file_path):
 
 def ungzip_file(gz_file):
         out_xml_file = gz_file[:-3]
-
         try:
             with gzip.open(gz_file, 'rb') as f:
                 content = f.read()
@@ -111,6 +115,50 @@ def ungzip_file(gz_file):
                 return True
 
 
+def find_links_on_page(site_name, site_id, disallow_list, page='', already_parsed_pages=[]):
+    # check whether the page is allowed by robots.txt or not
+    def is_allowed(list, page):
+        for i in list:
+            if re.search(r'{}'.format(i), page):
+                return False
+        return True
+
+    if page == '':
+        path_to_file = make_path_to_file(site_name, site_name)
+        url = ''.join(['http://', site_name])
+        if '/' not in disallow_list:
+            mydb.insert_pages_newone(url, site_id)
+            Logger.logger.info('%s added to the database', url)
+    else:
+        path_to_file = make_path_to_file(page, site_name)
+        url = page
+
+    if get_html_file(url, path_to_file):
+        soup = BeautifulSoup(open(path_to_file, 'r', encoding='utf-8'), 'html.parser')
+        for link in soup.find_all('a', href = True):
+            #new_link = re.sub(r'^\w+://', '', link['href'])
+            new_link = link['href']
+            first_part_link = re.sub(r'/[^/]+$', '', new_link)
+
+            if is_allowed(disallow_list, new_link) and '@' not in first_part_link:
+                if (re.search(r'([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}', first_part_link)
+                    and re.search(r'\b{}\b'.format(site_name), first_part_link)):
+                    if not mydb.check_if_page_exists(new_link):
+                        mydb.insert_pages_newone(new_link, site_id)
+                        Logger.logger.info('%s added to the database', new_link)
+                    if new_link not in already_parsed_pages:
+                        already_parsed_pages.append(new_link)
+                        find_links_on_page(site_name, site_id, disallow_list, new_link, already_parsed_pages)
+                elif re.search(r'^/[^\s^]+$', first_part_link):
+                    new_link = 'http://{}{}'.format(site_name, new_link)
+                    if not mydb.check_if_page_exists(new_link):
+                        mydb.insert_pages_newone(new_link, site_id)
+                        Logger.logger.info('%s added to the database', new_link)
+                    if new_link not in already_parsed_pages:
+                        already_parsed_pages.append(new_link)
+                        find_links_on_page(site_name, site_id, disallow_list, new_link, already_parsed_pages)
+
+
 def download_html(pages):
     for page in pages:
         current_url = page[0]
@@ -123,7 +171,11 @@ def download_html(pages):
 
         if re.search(r'[^\s]+robots\.txt$', current_url):
             if get_file(current_url, path_to_file):
-                parse_robots(path_to_file, site_id, mydb)
+                has_sitemap = parse_robots(path_to_file, site_id, mydb)
+                if not has_sitemap[0]:
+                    Logger.logger.info('Searching links in %s', site_name)
+                    find_links_on_page(site_name, site_id, has_sitemap[1])
+                    Logger.logger.info('Searching links in %s complete.', site_name)
         elif re.search(r'[S|s]itemap[^\s]*[\.xml]$', current_url):
             if get_file(current_url, path_to_file):
                 parse_xml_sitemap(path_to_file, site_id, mydb)
