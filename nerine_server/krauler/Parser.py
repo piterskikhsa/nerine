@@ -9,6 +9,7 @@ import Logger
 
 
 def parse_robots(robots_file, site_id, mydb):
+    disallow_list = []
     #print('found robots.txt:', robots_file)
     Logger.logger.info('parsing robot: %s', robots_file)
     with open(robots_file, 'r', encoding='utf-8') as f:
@@ -19,7 +20,13 @@ def parse_robots(robots_file, site_id, mydb):
                 sitemap_link = sitemap_link.group(1).strip()
                 if not mydb.check_if_page_exists(sitemap_link):
                     mydb.insert_pages_newone(sitemap_link, site_id)
-                break
+                return [True, disallow_list]
+
+            disallow_line = re.search(r'^[D|d]isallow:([\s]*[^\s]+)\s', line)
+            if disallow_line:
+                disallow_line = disallow_line.group(1).strip().replace('*', '[\s]*')
+                disallow_list.append(disallow_line)
+    return [False, disallow_list]
 
 
 def parse_url(url):
