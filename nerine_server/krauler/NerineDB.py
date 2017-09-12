@@ -98,9 +98,10 @@ class NerineDb:
     def check_if_page_exists(self, cur, *args):
         sql = "SELECT ID FROM Pages WHERE Url=%s LIMIT 1"
         cur.execute(sql, args[0])
+        result = cur.fetchone()
         if cur.rowcount == 0:
-            return False
-        return True
+            return 0
+        return result[0]
 
     @mysql_connect
     def insert_pages_robots(self, cur, *args):
@@ -124,10 +125,10 @@ class NerineDb:
             cur.execute(sql, (args[0], args[1], self.get_time))
         except Exception as error:
             Logger.logger.error('Could not insert the new page: %s', error)
-            return False
+            return [False, 0]
         else:
             Logger.logger.info('%s added to the database', args[0])
-            return True
+            return [True, cur.lastrowid]
 
     @mysql_connect
     def set_person_page_rank(self, cur, *args):
