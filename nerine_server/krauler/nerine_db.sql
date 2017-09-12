@@ -1,24 +1,23 @@
 ﻿# Nerine DB
-DROP DATABASE IF EXISTS nerine_db;
-CREATE DATABASE nerine_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE TABLE Persons(
+CREATE DATABASE IF NOT EXISTS nerine_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS Persons(
     ID INT NOT NULL AUTO_INCREMENT,
     Name NVARCHAR(2048) NOT NULL,
     PRIMARY KEY ( ID )
 );
-CREATE TABLE Keywords(
+CREATE TABLE IF NOT EXISTS Keywords(
     ID INT NOT NULL AUTO_INCREMENT,
     Name NVARCHAR(2048) NOT NULL,
     PersonID INT NOT NULL,
     PRIMARY KEY ( ID ),
     FOREIGN KEY ( PersonID ) REFERENCES Persons(ID)
 );
-CREATE TABLE Sites(
+CREATE TABLE IF NOT EXISTS Sites(
     ID INT NOT NULL AUTO_INCREMENT,
     Name NVARCHAR(256) NOT NULL,
     PRIMARY KEY ( ID )
 );
-CREATE TABLE Pages(
+CREATE TABLE IF NOT EXISTS Pages(
     ID INT NOT NULL AUTO_INCREMENT,
     Url NVARCHAR(2048) NOT NULL,
     SiteID INT NOT NULL,
@@ -27,10 +26,20 @@ CREATE TABLE Pages(
     PRIMARY KEY ( ID ),
     FOREIGN KEY ( SiteID ) REFERENCES Sites(ID)
 );
-CREATE TABLE PersonPageRank(
+CREATE TABLE IF NOT EXISTS PersonPageRank(
     PersonID INT NOT NULL,
     PageID INT NOT NULL,
     Rank INT DEFAULT 0,
     FOREIGN KEY ( PersonID ) REFERENCES Persons(ID),
     FOREIGN KEY ( PageID ) REFERENCES Pages(ID)
 );
+CREATE TABLE IF NOT EXISTS `UserSite` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `SiteID` int(11) NOT NULL,
+  `UserID` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `UserSite_SiteID_ba9d21ca_fk_Sites_id` (`SiteID`),
+  KEY `UserSite_UserID_36bc4cd7_fk_auth_user_id` (`UserID`),
+  CONSTRAINT `UserSite_SiteID_ba9d21ca_fk_Sites_id` FOREIGN KEY (`SiteID`) REFERENCES `Sites` (`id`),
+  CONSTRAINT `UserSite_UserID_36bc4cd7_fk_auth_user_id` FOREIGN KEY (`UserID`) REFERENCES `auth_user` (`id`)
+)
