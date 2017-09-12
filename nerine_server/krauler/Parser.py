@@ -3,6 +3,7 @@
 
 import os
 import re
+import string
 from xml.etree import ElementTree as ET
 from urllib.parse import quote
 import Logger
@@ -10,23 +11,33 @@ import Logger
 
 def parse_robots(robots_file, site_id, mydb):
     disallow_list = []
-    #print('found robots.txt:', robots_file)
     Logger.logger.info('parsing robot: %s', robots_file)
     with open(robots_file, 'r', encoding='utf-8') as f:
         for line in f:
             sitemap_link = re.search(r'^[S|s]itemap:([\s]*[^\s]+)\s', line)
             if sitemap_link:
-                #print('adding a new Sitemap link..')
                 sitemap_link = sitemap_link.group(1).strip()
                 if not mydb.check_if_page_exists(sitemap_link):
                     mydb.insert_pages_newone(sitemap_link, site_id)
                 return [True, disallow_list]
 
+            # catching disallow strings and making regex
             disallow_line = re.search(r'^[D|d]isallow:([\s]*[^\s]+)\s', line)
             if disallow_line:
-                disallow_line = disallow_line.group(1).strip().replace('*', '[\s]*')
+                disallow_line = disallow_line.group(1).strip()
+                if disallow_line == '/' or disallow_line == '/*':
+                    disallow_line = '.+?'
+                else:
+                    disallow_line = disallow_line.replace('.', '\.').replace('*', '.+?')
                 disallow_list.append(disallow_line)
     return [False, disallow_list]
+
+
+def is_allowed_by_robots(disallow_list, page):
+    for i in disallow_list:
+        if re.search(r'{}'.format(i), page):
+            return False
+    return True
 
 
 def parse_url(url):
@@ -36,9 +47,16 @@ def parse_url(url):
         return '{}{}'.format(url_1.group(), quote(url_2.group(1)))
 
 
+def is_valid_url(url):
+    if re.search(r"^((?:http)s?://)?(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?$))",
+                 url, re.IGNORECASE):
+        return True
+    else:
+        return False
+
+
 def make_path_to_file(page_url, site_name):
     file = page_url
-    #print('parsing url..', page_url)
     replacements = ('http://', 'https://', '?', '*', '"', ">", "<", "\\", ":", "|")
     for r in replacements:
         file = file.replace(r, '')
@@ -53,7 +71,6 @@ def make_path_to_file(page_url, site_name):
 
 
 def parse_xml_sitemap(xml_file, site_id, mydb):
-    #print('parsing.. a xml-sitemap:', xml_file)
     Logger.logger.info('parsing XML: %s', xml_file)
     with open(xml_file, 'r', encoding='utf-8') as f:
         tree = ET.parse(f)
@@ -67,7 +84,6 @@ def parse_xml_sitemap(xml_file, site_id, mydb):
             embedded_xml_file = elem.find('ns:loc', nsmap).text
             if embedded_xml_file:
                 if re.search(r'[^\s]+\.xml\b', embedded_xml_file):
-                    #print('found the embedded xml file:', embedded_xml_file)
                     if not mydb.check_if_page_exists(embedded_xml_file):
                         mydb.insert_pages_newone(embedded_xml_file, site_id)
     elif 'urlset' in root.tag:
@@ -75,23 +91,19 @@ def parse_xml_sitemap(xml_file, site_id, mydb):
             try:
                 html_file = elem.find('ns:loc', nsmap).text
             except Exception as error:
-                #print('Error:', error)
                 Logger.logger.error('could not find an urlset in XML: %s', error)
             else:
-                #print('found a html file:', html_file)
                 if not mydb.check_if_page_exists(html_file):
                     mydb.insert_pages_newone(html_file, site_id)
 
 
 def parse_txt_sitemap(txt_sitemap, site_id, mydb):
-    #print('parsing a txt-sitemap')
     Logger.logger.info('parsing a sitemap.txt: %s', txt_sitemap)
     with open(txt_sitemap, 'r', encoding='utf-8') as f:
         lines = f.readlines()
         for line in lines:
             if re.search(r'^http[s]{0,1}:[/]{2}[\w]+[^\s]+', line):
                 line = line.strip()
-                #print('found a html file:', line)
                 if not mydb.check_if_page_exists(line):
                     mydb.insert_pages_newone(line, site_id)
 
@@ -103,12 +115,19 @@ def parse_html(html_file, site_id, page_id, mydb, persons_dictionary, seek_words
                 return id
 
     with open(html_file, 'r', encoding='utf-8') as f:
-        html_words = f.read().lower().split()
+        html_words = f.read().lower()
+
+    html_words = re.sub('<.*?>', ' ', html_words)
+
+    for s in string.punctuation:
+        html_words = html_words.replace(s, ' ')
+
+    html_words = html_words.split()
+    html_words = list(map(lambda x: x.strip(), html_words))
 
     page_rank_dict = {}
-
-    #print('seeking words...')
     Logger.logger.info('seeking words in %s ...', html_file)
+
     for word in html_words:
         if word in seek_words:
             if find_person_id(word) not in page_rank_dict:
@@ -119,5 +138,4 @@ def parse_html(html_file, site_id, page_id, mydb, persons_dictionary, seek_words
     for person_id, rank in page_rank_dict.items():
         result = mydb.set_person_page_rank(person_id, page_id, rank)
         if result:
-            #print('added page rank (person_id, page_id, rank):', person_id, page_id, rank)
             Logger.logger.info('added page rank (personID, PageID, Rank): %s %s %s', person_id, page_id, rank)
