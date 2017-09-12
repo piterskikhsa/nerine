@@ -42,8 +42,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('Rank', models.PositiveIntegerField()),
-                ('PageID', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ranks', to='base.Page')),
-                ('PersonID', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ranks_on_pages', to='base.Person')),
+                ('PageID', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ranks', to='admin_app.Page')),
+                ('PersonID', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ranks_on_pages', to='admin_app.Person')),
             ],
         ),
         migrations.CreateModel(
@@ -56,11 +56,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='page',
             name='SiteID',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='base.Site'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='admin_app.Site'),
         ),
         migrations.AddField(
             model_name='keyword',
             name='PersonID',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='key_words', to='base.Person'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='key_words', to='admin_app.Person'),
         ),
     ]
