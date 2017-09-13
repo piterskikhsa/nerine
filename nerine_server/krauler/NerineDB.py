@@ -107,9 +107,9 @@ class NerineDb:
     def insert_pages_robots(self, cur, *args):
         url_robots = ''.join(['http://', args[0], '/robots.txt'])
         site_id = args[1]
-        sql = "INSERT INTO `Pages` (Url, SiteID, FoundDateTime) VALUES (%s, %s, %s)"
+        sql = "INSERT INTO `Pages` (Url, SiteID) VALUES (%s, %s)"
         try:
-            cur.execute(sql, (url_robots, site_id, self.get_time))
+            cur.execute(sql, (url_robots, site_id))
         except Exception as error:
             Logger.logger.error('Could not insert the new robots-page: %s', error)
             return False
@@ -118,11 +118,9 @@ class NerineDb:
     
     @mysql_connect
     def insert_pages_newone(self, cur, *args):
-        # I would recode it to FoundDateTime='DEFAULT CURRENT_TIMESTAMP'
-        # Only if we have mysql higher than 5.6.4
-        sql = "INSERT INTO Pages(Url, SiteID, FoundDateTime) VALUES(%s,%s,%s)"
+        sql = "INSERT INTO Pages(Url, SiteID) VALUES(%s,%s)"
         try:
-            cur.execute(sql, (args[0], args[1], self.get_time))
+            cur.execute(sql, args)
         except Exception as error:
             Logger.logger.error('Could not insert the new page: %s', error)
             return [False, 0]
@@ -142,7 +140,6 @@ class NerineDb:
             already_in = cur.fetchall()
 
         if already_in:
-            #print('the rank of person_id =', args[0], 'and page_id =', args[1], 'is already in the Database')
             sql = "UPDATE PersonPageRank SET Rank=%s WHERE PersonID=%s AND PageID=%s"
             params = (args[2], args[0], args[1])
         else:
