@@ -112,10 +112,12 @@ def insert_and_parse_page(path_to_html_file, site_id, mydb, persons_dictionary, 
 
 
 def is_internal_link(url, site_name):
-    if re.search(r'([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}', url):
-            if not re.search(r'\b{}\b'.format(site_name), url):
-                return False
-    return True
+    new_link = re.sub(r'https?://', '', url, re.IGNORECASE)
+    new_link = re.sub(r'[/|?]{1}[^/]+$', '', new_link)
+    if re.search(r'([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}', new_link):
+            if re.search(r'\b{}\b'.format(site_name), new_link):
+                return True
+    return False
 
 
 def get_and_parse_whole_site(site_name, site_id, disallow_list, page='', already_parsed_pages=[]):
@@ -133,13 +135,15 @@ def get_and_parse_whole_site(site_name, site_id, disallow_list, page='', already
         soup = BeautifulSoup(open(path_to_file, 'r', encoding='utf-8'), 'html.parser')
         for link in soup.find_all('a', href = True):
             new_link = link['href']
-            first_part_link = re.sub(r'/[^/]+$', '', new_link)
-
-            if not is_internal_link(first_part_link, site_name):
+            if not is_internal_link(new_link, site_name):
                 continue
+
+            first_part_link = re.sub(r'/[^/]+$', '', new_link)
 
             if re.search(r'^/[^\s^]+$', first_part_link):
                 new_link = 'http://{}{}'.format(site_name, new_link)
+            elif not re.search(r'https?://', new_link, re.IGNORECASE):
+                new_link = 'http://{}'.format(new_link)
 
             if is_valid_url(new_link) and is_allowed_by_robots(disallow_list, new_link) and\
                             new_link not in already_parsed_pages:
